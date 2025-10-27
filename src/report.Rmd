@@ -1,12 +1,13 @@
 ---
-  title: "jags report"
+title: "jags report"
 #code-author: MaartenPostuma
 #date: 23-07-2019
 output:
   html_document:
   df_print: paged
-rmd: "report.Rmd"
-args: myargs
+params:
+  rmd: "report.Rmd"   
+  args: myargs
 
 #### author: `r system("whoami",inter=T)`
 #### date: `r system("date",intern=T)`
@@ -18,11 +19,11 @@ args: myargs
 #It includes all the packages that are necessary and installs them if they are not yet there.
 args <- commandArgs(TRUE)
 library(ggplot2)
-library(r2jags)
+library(R2jags)
 library(rjags)
 knitr::opts_chunk$set(echo = FALSE)
 options(tinytex.verbose = TRUE)
-knitr::opts_knit$set(root.dir = '../../')
+knitr::opts_knit$set(root.dir = '../')
 
 ```
 
@@ -30,21 +31,24 @@ knitr::opts_knit$set(root.dir = '../../')
 
 This file contains all of the traceplots of the jags analysis.
 
-```{r,message=FALSE,results='asis',error=TRUE, fig.cap=paste("")}
+```{r,message=FALSE,results='asis',error=TRUE, fig.cap=paste(""),fig.dim=c(12,12)}
 
 #Big thing that makes all the analysis 
 parameters<-read.table("variablesToTest.tsv",h=T)
 
 for(order in unique(parameters$Order)){
   cat(paste0("\n\n## Order =",order,"{.tabset .tabset-fade .tabset-pills}"))
-  cat("\n\n### Traceplot \n")
-  for(variable in unique(parameters$Variable){
   
+  
+  for(variable in unique(parameters$Variable)){
 
-  cat("\n\n#### variable =", variable, "\n")
-  jagsModel<-readRDS(paste0(args[1],"/Order~",order,"/Variable~",variable,".Rds"))
-  
-  print(traceplot(jagsModel,mfrow=c(3,12)))
+  cat(paste0("\n\n### variable =", variable, "{.tabset .tabset-fade .tabset-pills}\n"))
+  jagsModel<-readRDS(paste0(params$args[1],"output/Order~",order,"/Variable~",variable,".Rds"))
+  cat(paste0("\n\n#### betas {.tabset .tabset-fade .tabset-pills}\n"))
+
+  print(traceplot(jagsModel,varname=c("tauSite","betaT","betaJ1","betaJ2","betaE", "betaVar")))
+    cat(paste0("\n\n#### alphas {.tabset .tabset-fade .tabset-pills}\n"))
+  print(traceplot(jagsModel,varname=c("alpha","alphaSite")))
 
 }
-
+}

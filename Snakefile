@@ -10,7 +10,8 @@ rule all:
         scripts=expand("{path}/scripts/{params}.R",path=config["outputDir"],params=paramspace.instance_patterns),
         RDS=expand("{path}/output/{params}.Rds",path=config["outputDir"],params=paramspace.instance_patterns),
         png=expand("{path}/output/{params}.png",path=config["outputDir"],params=paramspace.instance_patterns),
-        jag=expand("{path}/scripts/{params}.jag",path=config["outputDir"],params=paramspace.instance_patterns)
+        jag=expand("{path}/scripts/{params}.jag",path=config["outputDir"],params=paramspace.instance_patterns),
+        report=expand("{path}/report.html",path=config["outputDir"])
 
 
 #test2
@@ -35,7 +36,6 @@ rule runJags:
         RDS=expand("{path}/output/{params}.Rds",path=config["outputDir"],params=paramspace.wildcard_pattern),
         png=expand("{path}/output/{params}.png",path=config["outputDir"],params=paramspace.wildcard_pattern),
         jag=expand("{path}/scripts/{params}.jag",path=config["outputDir"],params=paramspace.wildcard_pattern)
-
     conda:
         "src/jags.yaml"
     params:
@@ -54,15 +54,17 @@ rule makeReport:
     input:
         RDS=expand("{path}/output/{params}.Rds",path=config["outputDir"],params=paramspace.instance_patterns)
     output:
-        report=expand("{path}/output/report.html",path=config["outputDir"])
+        report=expand("{path}/report.html",path=config["outputDir"])
     params:
         outputDir=config["outputDir"]
+    conda:
+        "src/jags.yaml"
     resources:
-        mem_mb= 1000,
-        runtime= 10,
+        mem_mb= 10000,
+        runtime= 240,
         cpus_per_task= 1
     shell:
-    """
-    R -e "rmarkdown::render('src/report.Rmd',output_file='report.html',params=list(args=c('{params.outputDir}')))"
-    mv src/filterAndFigures/report.html {output.report_out}
-    """
+        """
+        R -e "rmarkdown::render('src/report.Rmd',output_file='report.html',params=list(args=c('{params.outputDir}')))"
+        mv src/report.html {output.report}
+        """
