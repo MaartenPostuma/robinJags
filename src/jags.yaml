@@ -6,4 +6,6 @@ dependencies:
   - r-R2jags
   - r-ggplot2
   - r-base=4.2.2
+  - r-knitr
+  - r-rmarkdown
 prefix: R

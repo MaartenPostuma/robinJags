@@ -1,0 +1,50 @@
+---
+  title: "jags report"
+#code-author: MaartenPostuma
+#date: 23-07-2019
+output:
+  html_document:
+  df_print: paged
+rmd: "report.Rmd"
+args: myargs
+
+#### author: `r system("whoami",inter=T)`
+#### date: `r system("date",intern=T)`
+---
+  
+```{r setup, include=FALSE}
+
+#This is the setup. 
+#It includes all the packages that are necessary and installs them if they are not yet there.
+args <- commandArgs(TRUE)
+library(ggplot2)
+library(r2jags)
+library(rjags)
+knitr::opts_chunk$set(echo = FALSE)
+options(tinytex.verbose = TRUE)
+knitr::opts_knit$set(root.dir = '../../')
+
+```
+
+# Filter Steps {.tabset .tabset-fade .tabset-pills}
+
+This file contains all of the traceplots of the jags analysis.
+
+```{r,message=FALSE,results='asis',error=TRUE, fig.cap=paste("")}
+
+#Big thing that makes all the analysis 
+parameters<-read.table("variablesToTest.tsv",h=T)
+
+for(order in unique(parameters$Order)){
+  cat(paste0("\n\n## Order =",order,"{.tabset .tabset-fade .tabset-pills}"))
+  cat("\n\n### Traceplot \n")
+  for(variable in unique(parameters$Variable){
+  
+
+  cat("\n\n#### variable =", variable, "\n")
+  jagsModel<-readRDS(paste0(args[1],"/Order~",order,"/Variable~",variable,".Rds"))
+  
+  print(traceplot(jagsModel,mfrow=c(3,12)))
+
+}
+

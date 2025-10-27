@@ -49,4 +49,20 @@ rule runJags:
         """
         Rscript {input.script} {params.input1} {params.input2} {output.RDS} {output.png} {output.jag}
         """
-    
+
+rule makeReport:
+    input:
+        RDS=expand("{path}/output/{params}.Rds",path=config["outputDir"],params=paramspace.instance_patterns)
+    output:
+        report=expand("{path}/output/report.html",path=config["outputDir"])
+    params:
+        outputDir=config["outputDir"]
+    resources:
+        mem_mb= 1000,
+        runtime= 10,
+        cpus_per_task= 1
+    shell:
+    """
+    R -e "rmarkdown::render('src/report.Rmd',output_file='report.html',params=list(args=c('{params.outputDir}')))"
+    mv src/filterAndFigures/report.html {output.report_out}
+    """
