@@ -1,0 +1,6 @@
+#countData: "/home/rlexmond/Documents/Data/countsSimple.csv"
+#hourlyData: "/home/rlexmond/Documents/Data/hourlyDataWithCovariates2025July.csv"
+#outputDir: "/home/rlexmond/Documents/Data/Taxonomic analysis/Landscape/Agri/"
+countData: "/vol/ribesecology/mpostuma/robinJags/Data/countsSimple.csv"
+hourlyData: "/vol/ribesecology/mpostuma/robinJags/Data/hourlyDataWithCovariates2025July.csv"
+outputDir: "/vol/ribesecology/mpostuma/robinJags/output/"

@@ -1,0 +1,9 @@
+name: R
+channels:
+  - conda-forge
+dependencies: 
+  - r-rjags
+  - r-R2jags
+  - r-ggplot2
+  - r-base=4.2.2
+prefix: R
