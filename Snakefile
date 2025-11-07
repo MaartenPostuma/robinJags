@@ -43,7 +43,7 @@ rule runJags:
         input2=config["hourlyData"]
     resources:
         mem_mb= 10000,
-        runtime= 240,
+        runtime= 480,
         cpus_per_task= 3
     shell:
         """
