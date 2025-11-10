@@ -22,6 +22,7 @@ library(ggplot2)
 library(R2jags)
 library(rjags)
 knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(dev="png")
 options(tinytex.verbose = TRUE)
 knitr::opts_knit$set(root.dir = '../')
 
@@ -31,7 +32,7 @@ knitr::opts_knit$set(root.dir = '../')
 
 This file contains all of the traceplots of the jags analysis.
 
-```{r,message=FALSE,results='asis',error=TRUE, fig.cap=paste(""),fig.dim=c(12,12)}
+```{r,message=FALSE,results='asis',error=TRUE, fig.cap=paste(""),fig.dim=c(4,4),dpi=36}
 
 #Big thing that makes all the analysis 
 parameters<-read.table("variablesToTest.tsv",h=T)
@@ -45,10 +46,10 @@ for(order in unique(parameters$Order)){
   cat(paste0("\n\n### variable =", variable, "{.tabset .tabset-fade .tabset-pills}\n"))
   jagsModel<-readRDS(paste0(params$args[1],"output/Order~",order,"/Variable~",variable,".Rds"))
   cat(paste0("\n\n#### betas {.tabset .tabset-fade .tabset-pills}\n"))
-
+  par(mfrow=c(3,3))
   print(traceplot(jagsModel,varname=c("tauSite","betaT","betaJ1","betaJ2","betaE", "betaVar")))
-    cat(paste0("\n\n#### alphas {.tabset .tabset-fade .tabset-pills}\n"))
-  print(traceplot(jagsModel,varname=c("alpha","alphaSite")))
+ #  cat(paste0("\n\n#### alphas {.tabset .tabset-fade .tabset-pills}\n"))
+ # print(traceplot(jagsModel,varname=c("alpha","alphaSite")))
 
 }
 }

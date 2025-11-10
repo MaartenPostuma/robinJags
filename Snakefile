@@ -61,7 +61,7 @@ rule makeReport:
         "src/jags.yaml"
     resources:
         mem_mb= 10000,
-        runtime= 480,
+        runtime= 60,
         cpus_per_task= 1
     shell:
         """
