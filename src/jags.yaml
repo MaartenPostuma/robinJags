@@ -8,4 +8,5 @@ dependencies:
   - r-base=4.2.2
   - r-knitr
   - r-rmarkdown
+  - r-DT
 prefix: R

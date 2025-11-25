@@ -21,6 +21,7 @@ args <- commandArgs(TRUE)
 library(ggplot2)
 library(R2jags)
 library(rjags)
+library(DT)
 knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(dev="png")
 options(tinytex.verbose = TRUE)
@@ -31,6 +32,36 @@ knitr::opts_knit$set(root.dir = '../')
 # Filter Steps {.tabset .tabset-fade .tabset-pills}
 
 This file contains all of the traceplots of the jags analysis.
+
+outList<-list()
+for(i in 1:nrow(parameters)){
+  dataSub<-parameters[i,]
+  modelOut <- readRDS(paste0(args[1],"output/Order~",dataSub$Order,"/Variable~",dataSub$Variable,".Rds"))
+  summaryOut <- as.data.frame(modelOut$BUGSoutput$summary)
+  summaryOut$sign<-""
+  summaryOut$sign[summaryOut$mean<summaryOut$`2.5%`|summaryOut$mean>summaryOut$`97.5%`]<-"*"
+  dataOut<-as.data.frame(t(data.frame(summaryOut[27:32,1])))
+  dataOut[1:5]<-paste0(summaryOut[27:31,1],summaryOut$sign[27:31])
+  colnames(dataOut)<-c("hedgerow","flowerstrip","JulianDay","JulianDay2","temperature","value")
+  if(dataOut$value<summaryOut$`2.5%`[32]|dataOut$value>summaryOut$`97.5%`[32]){
+  dataOut$signVar<-"significant"}else{dataOut$signVar<-"non significant"}
+  dataOut$Variable<-dataSub$Variable
+  dataOut$Order<-dataSub$Order
+  dataOut$lowSign<-summaryOut$`2.5%`[31]
+  dataOut$highSign<-summaryOut$`97.5%`[31]
+  row.names(dataOut)<-paste(dataSub$Order,dataSub$Variable)
+  outList[[dataSub$Order]][[dataSub$Variable]]<-dataOut
+  }
+
+oneBigTable<-do.call(rbind,do.call(rbind,outList))
+oneBigTable
+
+
+data.table(oneBigTable[c("Order","Variable","signVar","value","hedgerow","flowerstrip","JulianDay","JulianDay2","temperature")],filter="top")
+
+write.csv(paste0(args[1],"/output/largeTable.csv"),row.names=F)
+
+
 
 ```{r,message=FALSE,results='asis',error=TRUE, fig.cap=paste(""),fig.dim=c(4,4),dpi=36}
 
