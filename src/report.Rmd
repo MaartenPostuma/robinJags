@@ -45,7 +45,7 @@ for(i in 1:nrow(parameters)){
   dataOut[1:5]<-paste0(summaryOut[27:31,1],summaryOut$sign[27:31])
   colnames(dataOut)<-c("hedgerow","flowerstrip","JulianDay","JulianDay2","temperature","value")
   if((summaryOut$`2.5%`[32]>0&summaryOut$`97.5%`[32]>0)|(summaryOut$`2.5%`[32]<0&summaryOut$`97.5%`[32]<0)){
-  dataOut$signVar<-"significant"}else{dataOut$signVar<-"non significant"}
+  dataOut$signVar<-"significant"}else{dataOut$signVar<-"no"}
   dataOut$Variable<-dataSub$Variable
   dataOut$Order<-dataSub$Order
   dataOut$lowSign<-summaryOut$`2.5%`[31]
