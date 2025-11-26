@@ -6,7 +6,7 @@ output:
   html_document:
   df_print: paged
 params:
-  rmd: "report.Rmd"   
+  rmd: "tempReport.Rmd"   
   args: myargs
 
 #### author: `r system("whoami",inter=T)`
@@ -33,8 +33,13 @@ knitr::opts_knit$set(root.dir = '../')
 
 This file contains all of the traceplots of the jags analysis.
 ```{r,message=FALSE,results='asis',error=TRUE}
-parameters<-read.table("variablesToTest.tsv",h=T)
+fileList<-list.files(paste0(params$args[1]),pattern=".Rds",recursive=T)
+parameters<-data.frame(rawOrder=NA,rawVar=rep(NA,times=length(fileList)))
+parameters[,c(1,2)]<-do.call(rbind,strsplit(fileList,"~"))[,2:3]
+parameters$Order<-sub("/Variable","",parameters$rawOrder)
+parameters$Variable<-sub(".Rds","",parameters$rawVar)
 outList<-list()
+allSummaries<-data.frame()
 for(i in 1:nrow(parameters)){
   dataSub<-parameters[i,]
   modelOut <- readRDS(paste0(params$args[1],"output/Order~",dataSub$Order,"/Variable~",dataSub$Variable,".Rds"))
@@ -42,37 +47,42 @@ for(i in 1:nrow(parameters)){
   summaryOut$sign<-""
   summaryOut$sign[(summaryOut$`2.5%`>0&summaryOut$`97.5%`>0)|(summaryOut$`2.5%`<0&summaryOut$`97.5%`<0)]<-"*"
   dataOut<-as.data.frame(t(data.frame(summaryOut[27:32,1])))
-  dataOut[1:5]<-paste0(summaryOut[27:31,1],summaryOut$sign[27:31])
+  dataOut[1:5]<-paste0(round(summaryOut[27:31,1],3),summaryOut$sign[27:31])
   colnames(dataOut)<-c("hedgerow","flowerstrip","JulianDay","JulianDay2","temperature","value")
+  dataOut$value<-round(dataOut$value,3)
+
   if((summaryOut$`2.5%`[32]>0&summaryOut$`97.5%`[32]>0)|(summaryOut$`2.5%`[32]<0&summaryOut$`97.5%`[32]<0)){
   dataOut$signVar<-"significant"}else{dataOut$signVar<-"non significant"}
   dataOut$Variable<-dataSub$Variable
   dataOut$Order<-dataSub$Order
-  dataOut$lowSign<-summaryOut$`2.5%`[31]
-  dataOut$highSign<-summaryOut$`97.5%`[31]
+  dataOut$lowSign<-round(summaryOut$`2.5%`[32],3)
+  dataOut$highSign<-round(summaryOut$`97.5%`[32],3)
   row.names(dataOut)<-paste(dataSub$Order,dataSub$Variable)
   outList[[dataSub$Order]][[dataSub$Variable]]<-dataOut
+  allSummaries<-rbind(allSummaries,summaryOut)
   }
 
 oneBigTable<-do.call(rbind,do.call(rbind,outList))
-
+row.names(oneBigTable)<-c(1:nrow(oneBigTable))
 
 datatable(oneBigTable[c("Order","Variable","signVar","value","hedgerow","flowerstrip","JulianDay","JulianDay2","temperature")],filter="top")
 
-write.csv(paste0(args[1],"/output/largeTable.csv"),row.names=F)
+write.csv(oneBigTable,paste0(params$args[1],"/output/tempTable.csv"),row.names=F)
+write.csv(allSummaries,paste0(params$args[1],"/output/tempAllSummaries.csv"))
+
 ```
 
 
 ```{r,message=FALSE,results='asis',error=TRUE, fig.cap=paste(""),fig.dim=c(4,4),dpi=36}
+orderPrev<-"Cinlcus cinclus cinclus"
 
 #Big thing that makes all the analysis 
-parameters<-read.table("variablesToTest.tsv",h=T)
-
-for(order in unique(parameters$Order)){
-  cat(paste0("\n\n## Order =",order,"{.tabset .tabset-fade .tabset-pills}"))
-  
-  
-  for(variable in unique(parameters$Variable)){
+for(i in 1:nrow(parameters)){
+    order<-parameters$Order[i]
+    if(order!=orderPrev){cat(paste0("\n\n## Order =",order,"{.tabset .tabset-fade .tabset-pills}"))
+}
+    orderPrev<-order
+  variable<-parameters$Variable[i]
 
   cat(paste0("\n\n### variable =", variable, "{.tabset .tabset-fade .tabset-pills}\n"))
   jagsModel<-readRDS(paste0(params$args[1],"output/Order~",order,"/Variable~",variable,".Rds"))
@@ -83,4 +93,4 @@ for(order in unique(parameters$Order)){
  # print(traceplot(jagsModel,varname=c("alpha","alphaSite")))
 
 }
-}
+
