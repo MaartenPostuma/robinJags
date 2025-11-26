@@ -32,11 +32,12 @@ knitr::opts_knit$set(root.dir = '../')
 # Filter Steps {.tabset .tabset-fade .tabset-pills}
 
 This file contains all of the traceplots of the jags analysis.
-
+```{r,message=FALSE,results='asis',error=TRUE}
+parameters<-read.table("variablesToTest.tsv",h=T)
 outList<-list()
 for(i in 1:nrow(parameters)){
   dataSub<-parameters[i,]
-  modelOut <- readRDS(paste0(args[1],"output/Order~",dataSub$Order,"/Variable~",dataSub$Variable,".Rds"))
+  modelOut <- readRDS(paste0(params$args[1],"output/Order~",dataSub$Order,"/Variable~",dataSub$Variable,".Rds"))
   summaryOut <- as.data.frame(modelOut$BUGSoutput$summary)
   summaryOut$sign<-""
   summaryOut$sign[summaryOut$mean<summaryOut$`2.5%`|summaryOut$mean>summaryOut$`97.5%`]<-"*"
@@ -54,13 +55,12 @@ for(i in 1:nrow(parameters)){
   }
 
 oneBigTable<-do.call(rbind,do.call(rbind,outList))
-oneBigTable
 
 
-data.table(oneBigTable[c("Order","Variable","signVar","value","hedgerow","flowerstrip","JulianDay","JulianDay2","temperature")],filter="top")
+datatable(oneBigTable[c("Order","Variable","signVar","value","hedgerow","flowerstrip","JulianDay","JulianDay2","temperature")],filter="top")
 
 write.csv(paste0(args[1],"/output/largeTable.csv"),row.names=F)
-
+```
 
 
 ```{r,message=FALSE,results='asis',error=TRUE, fig.cap=paste(""),fig.dim=c(4,4),dpi=36}
